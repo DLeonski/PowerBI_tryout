@@ -55,3 +55,38 @@ def test_profile_boolean_column():
         assert flag_col["semantic_type"] == "boolean"
     finally:
         os.unlink(tmp)
+
+from data.processor import clean_data
+
+def test_clean_removes_outliers():
+    df = pd.read_csv(FIXTURE)
+    rules = {
+        "remove_outliers": {"Revenue": {"method": "iqr", "threshold": 3.0}}
+    }
+    clean_df, log = clean_data(df, rules)
+    assert 150000.0 not in clean_df["Revenue"].values
+    assert any("outlier" in entry.lower() for entry in log)
+
+def test_clean_fills_nulls_with_mean():
+    df = pd.read_csv(FIXTURE)
+    rules = {
+        "handle_nulls": {"Revenue": "fill_mean"}
+    }
+    clean_df, log = clean_data(df, rules)
+    assert clean_df["Revenue"].isna().sum() == 0
+    assert any("null" in entry.lower() for entry in log)
+
+def test_clean_removes_duplicates():
+    df = pd.read_csv(FIXTURE)
+    df_with_dupe = pd.concat([df, df.iloc[[0]]], ignore_index=True)
+    rules = {"remove_duplicates": True}
+    clean_df, log = clean_data(df_with_dupe, rules)
+    assert len(clean_df) == len(df)
+    assert any("duplicate" in entry.lower() for entry in log)
+
+def test_clean_returns_log_of_decisions():
+    df = pd.read_csv(FIXTURE)
+    rules = {"remove_duplicates": True}
+    _, log = clean_data(df, rules)
+    assert isinstance(log, list)
+    assert len(log) > 0

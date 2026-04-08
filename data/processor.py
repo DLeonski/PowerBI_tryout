@@ -62,3 +62,52 @@ def profile_data(csv_path: str) -> dict:
         "has_numeric_columns": any(c["semantic_type"] == "numeric_continuous" for c in columns),
         "has_categorical_columns": any(c["semantic_type"] == "categorical" for c in columns),
     }
+
+
+def clean_data(df: pd.DataFrame, rules: dict) -> tuple[pd.DataFrame, list[str]]:
+    """Apply cleaning rules to df. Returns (clean_df, decision_log)."""
+    df = df.copy()
+    log = []
+
+    if rules.get("remove_duplicates"):
+        before = len(df)
+        df = df.drop_duplicates()
+        removed = before - len(df)
+        log.append(f"Removed {removed} duplicate rows.")
+
+    for col, strategy in rules.get("handle_nulls", {}).items():
+        null_count = int(df[col].isna().sum())
+        if null_count == 0:
+            continue
+        if strategy == "fill_mean":
+            mean_val = df[col].mean()
+            df[col] = df[col].fillna(mean_val)
+            log.append(f"Filled {null_count} null(s) in '{col}' with mean ({mean_val:.2f}).")
+        elif strategy == "fill_median":
+            median_val = df[col].median()
+            df[col] = df[col].fillna(median_val)
+            log.append(f"Filled {null_count} null(s) in '{col}' with median ({median_val:.2f}).")
+        elif strategy == "drop_row":
+            df = df.dropna(subset=[col])
+            log.append(f"Dropped {null_count} rows with null in '{col}'.")
+
+    for col, cfg in rules.get("remove_outliers", {}).items():
+        if col not in df.columns:
+            continue
+        series = df[col].dropna()
+        q1 = series.quantile(0.25)
+        q3 = series.quantile(0.75)
+        iqr = q3 - q1
+        threshold = cfg.get("threshold", 3.0)
+        upper = q3 + threshold * iqr
+        lower = q1 - threshold * iqr
+        outlier_mask = (df[col] > upper) | (df[col] < lower)
+        count = int(outlier_mask.sum())
+        if count > 0:
+            df = df[~outlier_mask]
+            log.append(
+                f"Removed {count} outlier row(s) in '{col}' "
+                f"(threshold: {threshold}x IQR, range [{lower:.2f}, {upper:.2f}])."
+            )
+
+    return df, log

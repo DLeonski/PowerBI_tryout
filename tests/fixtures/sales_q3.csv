@@ -1,0 +1,11 @@
+Date,Region,Product,Revenue,Units
+2023-07-01,North,Widget A,45000.0,150
+2023-07-01,South,Widget A,32000.0,110
+2023-07-02,North,Widget B,28000.0,95
+2023-07-02,East,Widget A,51000.0,170
+2023-07-03,North,Widget A,150000.0,500
+2023-07-03,West,Widget B,29000.0,98
+2023-07-04,South,Widget A,,112
+2023-07-04,East,Widget B,33000.0,115
+2023-07-05,North,Widget A,48000.0,160
+2023-07-05,South,Widget B,27000.0,90

@@ -4,13 +4,13 @@ from pathlib import Path
 
 
 def _detect_semantic_type(series: pd.Series) -> str:
+    if pd.api.types.is_bool_dtype(series):
+        return "boolean"
     if pd.api.types.is_datetime64_any_dtype(series):
         return "date"
     if pd.api.types.is_numeric_dtype(series):
         return "numeric_continuous"
-    if pd.api.types.is_bool_dtype(series):
-        return "boolean"
-    if series.nunique() / max(len(series), 1) < 0.5:
+    if series.nunique() / max(series.count(), 1) < 0.5:
         return "categorical"
     return "text"
 
@@ -22,12 +22,12 @@ def _detect_outliers(series: pd.Series) -> list:
     iqr = q3 - q1
     lower = q1 - 3 * iqr
     upper = q3 + 3 * iqr
-    return series[series > upper].tolist() + series[series < lower].tolist()
+    return sorted(series[series > upper].tolist() + series[series < lower].tolist())
 
 
 def profile_data(csv_path: str) -> dict:
     """Load CSV and return a profile dict describing its structure and statistics."""
-    df = pd.read_csv(csv_path, parse_dates=True)
+    df = pd.read_csv(csv_path)
 
     # Try to parse object columns as dates
     for col in df.select_dtypes(include="object").columns:

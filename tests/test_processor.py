@@ -1,8 +1,9 @@
 import pytest
 import pandas as pd
+from pathlib import Path
 from data.processor import profile_data
 
-FIXTURE = "tests/fixtures/sales_q3.csv"
+FIXTURE = str(Path(__file__).parent / "fixtures/sales_q3.csv")
 
 def test_profile_returns_row_count():
     profile = profile_data(FIXTURE)
@@ -31,3 +32,26 @@ def test_profile_has_summary_flags():
     assert profile["has_date_column"] is True
     assert profile["has_numeric_columns"] is True
     assert profile["has_categorical_columns"] is True
+
+def test_profile_numeric_stats_present():
+    profile = profile_data(FIXTURE)
+    rev_col = next(c for c in profile["columns"] if c["name"] == "Revenue")
+    assert "min" in rev_col
+    assert "max" in rev_col
+    assert "mean" in rev_col
+    assert rev_col["min"] == pytest.approx(27000.0)
+    assert rev_col["max"] == pytest.approx(150000.0)
+
+def test_profile_boolean_column():
+    import tempfile
+    import os
+    df = pd.DataFrame({"flag": [True, False, True], "value": [1.0, 2.0, 3.0]})
+    with tempfile.NamedTemporaryFile(suffix=".csv", mode="w", delete=False, newline="") as f:
+        df.to_csv(f, index=False)
+        tmp = f.name
+    try:
+        profile = profile_data(tmp)
+        flag_col = next(c for c in profile["columns"] if c["name"] == "flag")
+        assert flag_col["semantic_type"] == "boolean"
+    finally:
+        os.unlink(tmp)

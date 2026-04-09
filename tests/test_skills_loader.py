@@ -12,7 +12,7 @@ def test_chart_skill_loaded_when_requested():
     assert "line" in text.lower()
 
 def test_multiple_chart_skills_loaded():
-    text = load_skills(chart_types=["bar-chart", "kpi-card"])
+    text = load_skills(chart_types=["column-bar-chart", "kpi-card"])
     assert "bar" in text.lower()
     assert "kpi" in text.lower()
 

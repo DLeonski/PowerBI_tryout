@@ -21,7 +21,7 @@ TOOL_DEFINITIONS = [
     },
     {
         "name": "load_skills",
-        "description": "Load skill documents. Always includes base skills. Pass chart_types to include specific chart design guides.",
+        "description": "Load skill documents. Always includes base skills. Pass chart_types to include specific chart design guides. Set include_design=true to load the dashboard color & layout placement skill — REQUIRED before calling generate_pbix.",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -29,7 +29,11 @@ TOOL_DEFINITIONS = [
                     "type": "array",
                     "items": {"type": "string"},
                     "description": "List of chart type names e.g. ['line-chart', 'bar-chart', 'kpi-card']",
-                }
+                },
+                "include_design": {
+                    "type": "boolean",
+                    "description": "Set to true to load the dashboard color & layout placement skill (zones, color system, typography, anti-patterns). Must be loaded before generate_pbix.",
+                },
             },
             "required": [],
         },
@@ -66,7 +70,7 @@ TOOL_DEFINITIONS = [
     },
     {
         "name": "generate_pbix",
-        "description": "Generate the .pbix file from the model_spec.",
+        "description": "Generate the .pbix file from the model_spec. IMPORTANT: Before calling this tool you MUST call load_skills with include_design=true to load dashboard layout, color, and typography rules.",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -107,7 +111,10 @@ def dispatch_tool(name: str, inputs: dict) -> dict:
             return {"status": "ok", "data": data, "message": f"Profiled {data['row_count']} rows."}
 
         elif name == "load_skills":
-            text = load_skills(chart_types=inputs.get("chart_types"))
+            text = load_skills(
+                chart_types=inputs.get("chart_types"),
+                include_design=inputs.get("include_design", False),
+            )
             _state["skills_text"] = text
             return {"status": "ok", "data": {"text": text}, "message": "Skills loaded."}
 

@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(python -m pytest tests/test_processor.py -v)",
+      "Bash(python3)",
+      "Bash(python)",
+      "Bash(git checkout:*)",
+      "Bash(python -m pytest tests/test_processor.py -k \"clean\" -v)",
+      "Bash(python -m pytest tests/test_skills_loader.py -v)",
+      "Bash(git commit:*)",
+      "Bash(python -m pytest tests/test_generator.py -v)",
+      "Bash(python -m pytest tests/test_tools.py -v)",
+      "Bash(python main.py --help)",
+      "Bash(python -m pytest -m \"not integration\" -v)",
+      "Bash(python -m pytest -m \"not integration\" -v --tb=short)",
+      "Bash(git -C /c/Users/leonc/PowerBI_tryout branch)",
+      "Bash(.venv/Scripts/python -m pytest tests/test_skills_loader.py -v)",
+      "Bash(.venv/Scripts/python -m pytest -m \"not integration\" -v)",
+      "Bash(.venv/Scripts/python -c ':*)",
+      "Bash(.venv/Scripts/python -m pytest tests/test_integration.py -v -s)",
+      "Bash(.venv/Scripts/python -m pytest -m \"not integration\" -q)",
+      "Bash(python -)",
+      "Bash(python -m cli \"Create a sales dashboard showing revenue trends and top products\" tests/fixtures/sales_q3.csv --output-dir output/sales_dashboard)",
+      "Bash(.venv/Scripts/python -m cli \"Create a sales dashboard showing revenue trends and top products\" tests/fixtures/sales_q3.csv --output-dir output/sales_dashboard)",
+      "Bash(.venv/Scripts/python main.py \"Create a sales dashboard showing revenue trends and top products\" tests/fixtures/sales_q3.csv --output-dir output/sales_dashboard)",
+      "Bash(.venv/Scripts/python main.py \"Create a sales dashboard showing revenue trends and top products\" tests/fixtures/sales_q3.csv --output-dir output/sales_v2)",
+      "Bash(python -c ':*)"
+    ]
+  }
+}

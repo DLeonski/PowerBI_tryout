@@ -16,11 +16,26 @@ You MUST call tools in this order:
 2. load_skills — load base skills AND viz-routing. Analyze viz-routing to pick chart types, then call load_skills again with chart_types for the charts you selected.
 3. clean_data — clean based on profile and general-rules skill
 4. design_model — design visuals and DAX measures based on data profile and loaded skills
-5. generate_pbix — generate the .pbix file
-6. write_report — write the decision report
+5. load_skills with include_design=true — load the dashboard color & layout placement skill (zones, color system, typography). Apply these rules to finalize visual positions, colors, and sizes in your model_spec before generating.
+6. generate_pbix — generate the .pbix file
+7. write_report — write the decision report
 
 Use the output_dir provided in the user message for all file outputs.
-When calling design_model, pass a complete model_spec with: report_title, data_source_path (the cleaned CSV path), visuals (list), measures (list of {name, expression}).
+When calling design_model, pass a complete model_spec with: report_title, data_source_path (the cleaned CSV path), visuals (list of dicts), measures (list of {name, expression}).
+
+Each visual dict MUST be a structured object (not a string) with these keys:
+- type: one of lineChart, barChart, kpiCard, pieChart, tableEx, scatterPlot
+- title: display title
+- position: {x, y} in pixels
+- width, height: in pixels
+- For lineChart/scatterPlot: x_column (date/text column name), y_column (numeric column name)
+- For barChart: category_column (text column name), value_column (numeric column name)
+- For pieChart: category_column (text column name), value_column (numeric column name)
+- For kpiCard: value_column (numeric column name)
+- For tableEx: columns (list of column names to show)
+
+Column names must exactly match column names in the CSV data profile.
+After loading the design skill in step 5, update visual positions and color assignments in the model_spec to comply with the 3-zone layout and color system before calling generate_pbix.
 """
 
 

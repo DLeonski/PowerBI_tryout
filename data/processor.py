@@ -46,7 +46,7 @@ def profile_data(csv_path: str) -> dict:
             "semantic_type": sem_type,
             "null_count": int(series.isna().sum()),
             "unique_count": int(series.nunique()),
-            "sample_values": series.dropna().head(3).tolist(),
+            "sample_values": [str(v) for v in series.dropna().head(3)],
         }
         if sem_type == "numeric_continuous":
             col_info["min"] = float(series.min()) if not series.isna().all() else None

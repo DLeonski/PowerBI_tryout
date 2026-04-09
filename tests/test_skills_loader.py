@@ -4,8 +4,15 @@ from skills.loader import load_skills
 
 def test_base_skills_always_loaded():
     text = load_skills()
-    assert "dashboard" in text.lower()
+    assert "general" in text.lower()
     assert "chart type" in text.lower() or "viz-routing" in text.lower() or "line-chart" in text.lower()
+
+
+def test_design_skill_loaded_when_requested():
+    text = load_skills(include_design=True)
+    assert "dashboard" in text.lower()
+    assert "zone" in text.lower()
+    assert "color" in text.lower()
 
 def test_chart_skill_loaded_when_requested():
     text = load_skills(chart_types=["line-chart"])

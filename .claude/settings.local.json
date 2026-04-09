@@ -27,7 +27,24 @@
       "Bash(.venv/Scripts/python -m cli \"Create a sales dashboard showing revenue trends and top products\" tests/fixtures/sales_q3.csv --output-dir output/sales_dashboard)",
       "Bash(.venv/Scripts/python main.py \"Create a sales dashboard showing revenue trends and top products\" tests/fixtures/sales_q3.csv --output-dir output/sales_dashboard)",
       "Bash(.venv/Scripts/python main.py \"Create a sales dashboard showing revenue trends and top products\" tests/fixtures/sales_q3.csv --output-dir output/sales_v2)",
-      "Bash(python -c ':*)"
+      "Bash(python -c ':*)",
+      "Bash(python main.py \"Build dashboard\" \"C:\\\\Users\\\\leonc\\\\Desktop\\\\archive\\\\Sample - Superstore.csv\")",
+      "Bash(python -c \"import openpyxl; print\\('openpyxl OK'\\)\")",
+      "Bash(python -m pytest tests/test_skills_loader.py::test_domain_skill_loaded_when_requested -v)",
+      "Bash(python -m pytest tests/ -v)",
+      "Bash(python -m pytest tests/test_skills_loader.py -v --tb=short)",
+      "Bash(python -m pytest tests/test_classifier.py -v)",
+      "Bash(python -m pytest tests/test_tools.py::test_tool_names_match_expected -v)",
+      "Bash(python -c \"from agent.main_agent import SYSTEM_PROMPT; print\\('OK', len\\(SYSTEM_PROMPT\\), 'chars'\\)\")",
+      "Bash(python -m pytest tests/ --ignore=tests/test_integration.py -v)",
+      "Bash(python -m pytest tests/test_integration.py::test_classify_domain_on_superstore tests/test_integration.py::test_classify_domain_on_generic_csv -v -s)",
+      "Bash(python -c \"import openpyxl; print\\('openpyxl', openpyxl.__version__, 'OK'\\)\")",
+      "Bash(python -m pytest tests/test_skills_loader.py tests/test_tools.py -q)",
+      "Bash(python c:/Users/leonc/PowerBI_tryout/main.py --help)",
+      "Bash(python -m pytest tests/ -q --ignore=tests/test_integration.py)",
+      "Bash(c:/Users/leonc/PowerBI_tryout/.venv/Scripts/pip install:*)",
+      "Bash(c:/Users/leonc/PowerBI_tryout/.venv/Scripts/python -c \"import openpyxl; print\\('openpyxl', openpyxl.__version__, 'in .venv OK'\\)\")",
+      "Bash(git restore:*)"
     ]
   }
 }

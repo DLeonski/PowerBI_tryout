@@ -7,6 +7,7 @@ from pathlib import Path
 from data.processor import profile_data, clean_data
 from pbix.generator import generate_pbix
 from skills.loader import load_skills
+from agent.classifier import classify_domain as _classify_domain
 import config
 
 TOOL_DEFINITIONS = [
@@ -20,8 +21,22 @@ TOOL_DEFINITIONS = [
         },
     },
     {
+        "name": "classify_domain",
+        "description": "Classify the dataset domain (retail, generic) via a focused LLM call. Call this once after profile_data and before load_skills. Returns {domain, confidence, reasoning, matched_columns}.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "profile": {
+                    "type": "object",
+                    "description": "The full profile dict returned by profile_data.",
+                }
+            },
+            "required": ["profile"],
+        },
+    },
+    {
         "name": "load_skills",
-        "description": "Load skill documents. Always includes base skills. Pass chart_types to include specific chart design guides. Set include_design=true to load the dashboard color & layout placement skill — REQUIRED before calling generate_pbix.",
+        "description": "Load skill documents. Always includes base skills. Pass chart_types to include specific chart design guides. Pass domain (from classify_domain result) to load domain-specific KPI skill. Set include_design=true to load the dashboard color & layout placement skill — REQUIRED before calling generate_pbix.",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -33,6 +48,10 @@ TOOL_DEFINITIONS = [
                 "include_design": {
                     "type": "boolean",
                     "description": "Set to true to load the dashboard color & layout placement skill (zones, color system, typography, anti-patterns). Must be loaded before generate_pbix.",
+                },
+                "domain": {
+                    "type": "string",
+                    "description": "Domain skill to load alongside base skills. Pass the domain returned by classify_domain (e.g. 'retail'). Omit or pass 'generic' to skip domain skill.",
                 },
             },
             "required": [],
@@ -110,21 +129,28 @@ def dispatch_tool(name: str, inputs: dict) -> dict:
             _state["csv_path"] = inputs["csv_path"]
             return {"status": "ok", "data": data, "message": f"Profiled {data['row_count']} rows."}
 
+        elif name == "classify_domain":
+            result = _classify_domain(inputs["profile"])
+            _state["domain"] = result.get("domain", "generic")
+            return {"status": "ok", "data": result, "message": f"Domain classified as: {result.get('domain')} (confidence: {result.get('confidence')})"}
+
         elif name == "load_skills":
             text = load_skills(
                 chart_types=inputs.get("chart_types"),
                 include_design=inputs.get("include_design", False),
+                domain=inputs.get("domain"),
             )
             _state["skills_text"] = text
             return {"status": "ok", "data": {"text": text}, "message": "Skills loaded."}
 
         elif name == "clean_data":
-            df = pd.read_csv(inputs["csv_path"])
+            from data.processor import _read_csv_any_encoding
+            df = _read_csv_any_encoding(inputs["csv_path"])
             clean_df, log = clean_data(df, inputs["rules"])
             out_dir = Path(inputs["output_dir"])
             out_dir.mkdir(parents=True, exist_ok=True)
-            clean_path = str(out_dir / "data.csv")
-            clean_df.to_csv(clean_path, index=False)
+            clean_path = str(out_dir / "data.xlsx")
+            clean_df.to_excel(clean_path, index=False, sheet_name="data")
             _state.setdefault("cleaning_log", []).extend(log)
             _state["clean_csv_path"] = clean_path
             return {"status": "ok", "data": {"clean_csv_path": clean_path, "log": log}, "message": f"Cleaned data saved to {clean_path}."}

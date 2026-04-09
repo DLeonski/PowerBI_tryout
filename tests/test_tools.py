@@ -12,7 +12,8 @@ def test_tool_names_match_expected():
     names = {t["name"] for t in TOOL_DEFINITIONS}
     assert names == {
         "profile_data", "load_skills", "clean_data",
-        "design_model", "generate_pbix", "write_report"
+        "design_model", "generate_pbix", "write_report",
+        "classify_domain",
     }
 
 def test_dispatch_profile_data_returns_dict(tmp_path):

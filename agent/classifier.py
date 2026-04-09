@@ -69,6 +69,10 @@ def classify_domain(profile: dict) -> dict:
         )
 
         raw = response.content[0].text.strip()
+        # Strip markdown code fences if the model wraps the JSON despite instructions
+        if raw.startswith("```"):
+            raw = raw.split("\n", 1)[-1]  # drop the opening ```json line
+            raw = raw.rsplit("```", 1)[0].strip()  # drop the closing ```
         result = json.loads(raw)
 
         # Ensure required keys present
